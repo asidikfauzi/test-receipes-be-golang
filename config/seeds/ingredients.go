@@ -5,6 +5,7 @@ import (
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/domain"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"time"
 )
 
 type IngredientSeed struct {
@@ -18,48 +19,30 @@ func NewIngredientSeeder(conn *gorm.DB) domain.IngredientMigration {
 }
 
 func (g *IngredientSeed) UpIngredientSeeder() {
+	ingredientNames := []string{
+		"Egg",
+		"Tea Leaves",
+		"Flour",
+		"Rice",
+		"Red Onion",
+		"Garlic",
+		"Strawberry",
+		"Bread",
+	}
 
-	var ingredientIDs []uuid.UUID
+	for _, ingredientName := range ingredientNames {
+		var existingIngredient models.Ingredients
+		if err := g.db.Where("ingredient_name = ?", ingredientName).First(&existingIngredient).Error; err == nil {
+			continue
+		}
 
-	for i := 0; i < 8; i++ {
 		ingredientID, _ := uuid.NewRandom()
-		ingredientIDs = append(ingredientIDs, ingredientID)
-	}
+		newIngredient := models.Ingredients{
+			IngredientID:   ingredientID,
+			IngredientName: ingredientName,
+			CreatedAt:      time.Now(),
+		}
 
-	ingredients := []models.Ingredients{
-		{
-			IngredientID:   ingredientIDs[0],
-			IngredientName: "Egg",
-		},
-		{
-			IngredientID:   ingredientIDs[1],
-			IngredientName: "Tea Leaves",
-		},
-		{
-			IngredientID:   ingredientIDs[2],
-			IngredientName: "Flour",
-		},
-		{
-			IngredientID:   ingredientIDs[3],
-			IngredientName: "Rice",
-		},
-		{
-			IngredientID:   ingredientIDs[4],
-			IngredientName: "Red Onion",
-		},
-		{
-			IngredientID:   ingredientIDs[5],
-			IngredientName: "Garlic",
-		},
-		{
-			IngredientID:   ingredientIDs[6],
-			IngredientName: "Strawberry",
-		},
-		{
-			IngredientID:   ingredientIDs[7],
-			IngredientName: "Bread",
-		},
+		g.db.Create(&newIngredient)
 	}
-
-	g.db.Create(ingredients)
 }

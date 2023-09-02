@@ -19,31 +19,21 @@ func NewCategorySeeder(conn *gorm.DB) domain.CategoryMigration {
 }
 
 func (c *CategorySeed) UpCategorySeeder() {
+	categoryNames := []string{"The Main Food", "Drink", "Dessert"}
 
-	var categoryIDs []uuid.UUID
+	for _, categoryName := range categoryNames {
+		var existingCategory models.Categories
+		if err := c.db.Where("category_name = ?", categoryName).First(&existingCategory).Error; err == nil {
+			continue
+		}
 
-	for i := 0; i < 3; i++ {
 		categoryID, _ := uuid.NewRandom()
-		categoryIDs = append(categoryIDs, categoryID)
-	}
+		newCategory := models.Categories{
+			CategoryID:   categoryID,
+			CategoryName: categoryName,
+			CreatedAt:    time.Now(),
+		}
 
-	categories := []models.Categories{
-		{
-			CategoryID:   categoryIDs[0],
-			CategoryName: "The Main Food",
-			CreatedAt:    time.Now(),
-		},
-		{
-			CategoryID:   categoryIDs[1],
-			CategoryName: "Drink",
-			CreatedAt:    time.Now(),
-		},
-		{
-			CategoryID:   categoryIDs[2],
-			CategoryName: "Dessert",
-			CreatedAt:    time.Now(),
-		},
+		c.db.Create(&newCategory)
 	}
-
-	c.db.Create(categories)
 }
