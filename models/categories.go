@@ -12,3 +12,9 @@ type Categories struct {
 	UpdatedAt    *time.Time `gorm:"default:null"`
 	DeleteAt     *time.Time `gorm:"default:null"`
 }
+
+type GetAllCategories struct {
+	CategoryID   uuid.UUID `json:"category_id"`
+	CategoryName string    `json:"category_name"`
+	CreatedAt    time.Time `gorm:"default:null"`
+}
