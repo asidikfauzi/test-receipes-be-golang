@@ -43,3 +43,20 @@ func (m *MasterCategory) GetAllCategories(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (m *MasterCategory) GetCategoryById(c *gin.Context) {
+	id := c.Param("id")
+	data, err := m.CategoryDatabase.GetCategoryById(id)
+	if err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+
+	response := models.Response{
+		Code:    200,
+		Message: "Get Category By ID Successfully",
+		Data:    data,
+	}
+
+	c.JSON(http.StatusOK, response)
+}

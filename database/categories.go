@@ -1,8 +1,10 @@
 package database
 
 import (
+	"errors"
 	"github.com/asidikfauzi/test-recipes-be-golang/models"
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/domain"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -42,5 +44,30 @@ func (d *CategoryDatabase) GetCategories(offset, limit int) ([]models.GetAllCate
 		})
 	}
 	return response, totalCount, nil
+
+}
+
+func (d *CategoryDatabase) GetCategoryById(id string) (category models.GetAllCategories, err error) {
+	var categories models.Categories
+
+	uuidID, err := uuid.Parse(id)
+	if err != nil {
+		return category, err
+	}
+
+	if err := d.db.Where("category_id = ?", uuidID).First(&categories).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = errors.New("Category not found!")
+		}
+		return category, err
+	}
+
+	response := models.GetAllCategories{
+		CategoryID:   categories.CategoryID,
+		CategoryName: categories.CategoryName,
+		CreatedAt:    categories.CreatedAt,
+	}
+
+	return response, nil
 
 }

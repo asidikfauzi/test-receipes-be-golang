@@ -29,6 +29,7 @@ func (r *RoutesService) InitRoutes() {
 		categories := endpoint.Group("/category")
 		{
 			categories.GET("/", r.CategoryController.GetAllCategories)
+			categories.GET("/:id", r.CategoryController.GetCategoryById)
 		}
 	}
 

@@ -6,4 +6,5 @@ import (
 
 type CategoryDatabase interface {
 	GetCategories(offset, limit int) ([]models.GetAllCategories, int64, error)
+	GetCategoryById(id string) (models.GetAllCategories, error)
 }
