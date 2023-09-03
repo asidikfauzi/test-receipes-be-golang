@@ -13,7 +13,7 @@ type CategoryDatabase struct {
 	db *gorm.DB
 }
 
-func NewRCategoryDatabase(conn *gorm.DB) domain.CategoryDatabase {
+func NewCategoryDatabase(conn *gorm.DB) domain.CategoryDatabase {
 	return &CategoryDatabase{
 		db: conn,
 	}

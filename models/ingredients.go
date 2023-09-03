@@ -12,3 +12,13 @@ type Ingredients struct {
 	UpdatedAt      *time.Time `gorm:"default:null" json:"updated_at"`
 	DeletedAt      *time.Time `gorm:"default:null" json:"deleted_at"`
 }
+
+type GetAllIngredients struct {
+	IngredientID   uuid.UUID `json:"ingredient_id"`
+	IngredientName string    `json:"ingredient_name"`
+	CreatedAt      time.Time `json:"created_at"`
+}
+
+type IngredientRequest struct {
+	IngredientName string `json:"ingredient_name" binding:"required"`
+}

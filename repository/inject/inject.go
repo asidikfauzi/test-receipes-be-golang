@@ -24,16 +24,19 @@ func DependencyInjection(liq InjectData) domain.Config {
 	ingredientSeeder := seeds.NewIngredientSeeder(db)
 	recipeSeeder := seeds.NewRecipeSeeder(db)
 
-	categotyDatabase := database.NewRCategoryDatabase(db)
+	categoryDatabase := database.NewCategoryDatabase(db)
+	ingredientDatabase := database.NewIngredientDatabase(db)
 
 	dependencies := []*inject.Object{
-		{Value: categotyDatabase, Name: "category_database"},
+		{Value: categoryDatabase, Name: "category_database"},
+		{Value: ingredientDatabase, Name: "ingredient_database"},
 	}
 
 	if liq.Routes != nil {
 		dependencies = append(dependencies,
 			&inject.Object{Value: liq.Routes, Name: "routes"},
 			&inject.Object{Value: liq.Routes.CategoryController, Name: "category_controller"},
+			&inject.Object{Value: liq.Routes.IngredientController, Name: "ingredient_controller"},
 		)
 	}
 
