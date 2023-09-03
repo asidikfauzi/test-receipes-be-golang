@@ -9,4 +9,5 @@ type RecipeDatabase interface {
 	CheckExistsById(id, name string) error
 	InsertRecipe(recipe models.RecipeRequest, recipeToIngredients []models.RecipesToIngredientsRequest) error
 	UpdateRecipe(id string, recipe models.RecipeRequest, recipeToIngredients []models.RecipesToIngredientsRequest) error
+	DeleteRecipe(id string) error
 }

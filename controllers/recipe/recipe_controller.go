@@ -149,3 +149,28 @@ func (m *MasterRecipe) UpdateRecipe(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, response)
 }
+
+func (m *MasterRecipe) DeleteRecipe(c *gin.Context) {
+	var err error
+
+	id := c.Param("id")
+	_, err = m.RecipeDatabase.GetRecipeById(id)
+	if err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+
+	err = m.RecipeDatabase.DeleteRecipe(id)
+	if err != nil {
+		utils.InternalServerError(c, err.Error())
+		return
+	}
+
+	response := models.Response{
+		Code:    http.StatusCreated,
+		Message: "Successfully Delete Recipe!",
+		Data:    id,
+	}
+
+	c.JSON(http.StatusCreated, response)
+}
