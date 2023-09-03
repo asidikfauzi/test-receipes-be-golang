@@ -32,7 +32,7 @@ func (d *CategoryDatabase) GetCategories(offset, limit int) ([]models.GetAllCate
 		return nil, totalCount, err
 	}
 
-	if err := d.db.Model(&categories).Count(&totalCount).Error; err != nil {
+	if err := d.db.Model(&categories).Where("deleted_at IS NULL").Count(&totalCount).Error; err != nil {
 		return nil, totalCount, err
 	}
 

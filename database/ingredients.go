@@ -32,7 +32,7 @@ func (d *IngredientDatabase) GetIngredients(offset, limit int) ([]models.GetAllI
 		return nil, totalCount, err
 	}
 
-	if err := d.db.Model(&ingredients).Count(&totalCount).Error; err != nil {
+	if err := d.db.Model(&ingredients).Where("deleted_at IS NULL").Count(&totalCount).Error; err != nil {
 		return nil, totalCount, err
 	}
 
