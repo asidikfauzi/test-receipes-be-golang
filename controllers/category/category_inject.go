@@ -8,6 +8,7 @@ import (
 type CategoryController interface {
 	GetAllCategories(c *gin.Context)
 	GetCategoryById(c *gin.Context)
+	CreateCategory(c *gin.Context)
 }
 
 type MasterCategory struct {

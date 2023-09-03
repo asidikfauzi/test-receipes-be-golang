@@ -6,6 +6,7 @@ import (
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/domain"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"time"
 )
 
 type CategoryDatabase struct {
@@ -70,4 +71,32 @@ func (d *CategoryDatabase) GetCategoryById(id string) (category models.GetAllCat
 
 	return response, nil
 
+}
+
+func (d *CategoryDatabase) CheckExists(name string) error {
+	var categories models.Categories
+
+	if err := d.db.Where("category_name = ?", name).First(&categories).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+
+	return errors.New("Category name already exists")
+}
+
+func (d *CategoryDatabase) InsertCategory(category models.CategoryRequest) error {
+	var categories models.Categories
+
+	categories.CategoryName = category.CategoryName
+	categories.CreatedAt = time.Now()
+
+	err := d.db.Create(&categories).Error
+	if err != nil {
+		err = errors.New(err.Error())
+		return err
+	}
+
+	return nil
 }

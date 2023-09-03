@@ -18,3 +18,7 @@ type GetAllCategories struct {
 	CategoryName string    `json:"category_name"`
 	CreatedAt    time.Time `gorm:"default:null"`
 }
+
+type CategoryRequest struct {
+	CategoryName string `json:"category_name" binding:"required"`
+}

@@ -1,9 +1,11 @@
 package category
 
 import (
+	"errors"
 	"github.com/asidikfauzi/test-recipes-be-golang/models"
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"math"
 	"net/http"
 )
@@ -56,6 +58,44 @@ func (m *MasterCategory) GetCategoryById(c *gin.Context) {
 		Code:    200,
 		Message: "Get Category By ID Successfully",
 		Data:    data,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (m *MasterCategory) CreateCategory(c *gin.Context) {
+	var (
+		requestCategory models.CategoryRequest
+		err             error
+	)
+
+	if err = c.ShouldBindJSON(&requestCategory); err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			out := make([]models.ErrorMessageEmpty, len(ve))
+			for i, fe := range ve {
+				out[i] = models.ErrorMessageEmpty{Field: fe.Field(), Message: utils.GetErrorMessageEmpty(fe)}
+			}
+			utils.BadRequest(c, out)
+		}
+		return
+	}
+
+	err = m.CategoryDatabase.CheckExists(requestCategory.CategoryName)
+	if err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+
+	err = m.CategoryDatabase.InsertCategory(requestCategory)
+	if err != nil {
+		utils.InternalServerError(c, err.Error())
+		return
+	}
+
+	response := models.Response{
+		Code:    201,
+		Message: "Successfully Add Category!",
 	}
 
 	c.JSON(http.StatusOK, response)
