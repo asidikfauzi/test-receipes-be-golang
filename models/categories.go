@@ -6,7 +6,7 @@ import (
 )
 
 type Categories struct {
-	CategoryID   uuid.UUID  `json:"category_id"`
+	CategoryID   uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primary_key;column:category_id;" json:"category_id"`
 	CategoryName string     `json:"category_name"`
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    *time.Time `json:"updated_at"`

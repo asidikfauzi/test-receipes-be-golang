@@ -96,6 +96,7 @@ func (m *MasterCategory) CreateCategory(c *gin.Context) {
 	response := models.Response{
 		Code:    http.StatusCreated,
 		Message: "Successfully Add Category!",
+		Data:    requestCategory,
 	}
 
 	c.JSON(http.StatusCreated, response)
@@ -141,6 +142,7 @@ func (m *MasterCategory) UpdateCategory(c *gin.Context) {
 	response := models.Response{
 		Code:    http.StatusOK,
 		Message: "Successfully Update Category!",
+		Data:    requestCategory,
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -165,6 +167,7 @@ func (m *MasterCategory) DeleteCategory(c *gin.Context) {
 	response := models.Response{
 		Code:    http.StatusOK,
 		Message: "Successfully Delete Category!",
+		Data:    id,
 	}
 
 	c.JSON(http.StatusOK, response)

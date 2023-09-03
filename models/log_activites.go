@@ -6,7 +6,7 @@ import (
 )
 
 type LogActivity struct {
-	Uuid      uuid.UUID `json:"id"`
+	Uuid      uuid.UUID `gorm:"uuid;default:uuid_generate_v4();primary_key;column:id;" json:"id"`
 	TimeStamp time.Time `json:"timestamp"`
 	Action    string    `json:"action"`
 	IpAddress string    `json:"ip_address"`

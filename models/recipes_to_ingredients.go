@@ -6,7 +6,7 @@ import (
 )
 
 type RecipesToIngredients struct {
-	RecToIngID     uuid.UUID  `json:"rec_to_ing_id"`
+	RecToIngID     uuid.UUID  ` gorm:"uuid;default:uuid_generate_v4();primary_key;column:rec_to_ing_id;" json:"rec_to_ing_id"`
 	RecToIngAmount float64    `json:"rec_to_ing_amount"`
 	CreatedAt      time.Time  `json:"created_at"`
 	UpdatedAt      *time.Time `json:"updated_at"`

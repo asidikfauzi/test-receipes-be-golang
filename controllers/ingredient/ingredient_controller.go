@@ -96,6 +96,7 @@ func (m *MasterIngredient) CreateIngredient(c *gin.Context) {
 	response := models.Response{
 		Code:    http.StatusCreated,
 		Message: "Successfully Add Ingredient!",
+		Data:    requestIngredient,
 	}
 
 	c.JSON(http.StatusCreated, response)
@@ -141,6 +142,7 @@ func (m *MasterIngredient) UpdateIngredient(c *gin.Context) {
 	response := models.Response{
 		Code:    http.StatusOK,
 		Message: "Successfully Update Ingredient!",
+		Data:    requestIngredient,
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -165,6 +167,7 @@ func (m *MasterIngredient) DeleteIngredient(c *gin.Context) {
 	response := models.Response{
 		Code:    http.StatusOK,
 		Message: "Successfully Delete Ingredient!",
+		Data:    id,
 	}
 
 	c.JSON(http.StatusOK, response)

@@ -6,7 +6,7 @@ import (
 )
 
 type Recipes struct {
-	RecipeID                 uuid.UUID  `json:"recipe_id"`
+	RecipeID                 uuid.UUID  `gorm:"uuid;default:uuid_generate_v4();primary_key;column:recipe_id;" json:"recipe_id"`
 	RecipeName               string     `json:"recipe_name"`
 	RecipeDescription        string     `json:"recipe_description"`
 	RecipeImage              string     `json:"recipe_image"`

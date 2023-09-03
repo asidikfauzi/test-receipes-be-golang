@@ -6,7 +6,7 @@ import (
 )
 
 type Ingredients struct {
-	IngredientID   uuid.UUID  `json:"ingredient_id"`
+	IngredientID   uuid.UUID  `gorm:"uuid;default:uuid_generate_v4();primary_key;column:ingredient_id;" json:"ingredient_id"`
 	IngredientName string     `json:"ingredient_name"`
 	CreatedAt      time.Time  `json:"created_at"`
 	UpdatedAt      *time.Time `json:"updated_at"`
