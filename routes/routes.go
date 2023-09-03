@@ -32,6 +32,7 @@ func (r *RoutesService) InitRoutes() {
 			categories.GET("/:id", r.CategoryController.GetCategoryById)
 			categories.POST("/", r.CategoryController.CreateCategory)
 			categories.PUT("/:id", r.CategoryController.UpdateCategory)
+			categories.DELETE("/:id", r.CategoryController.DeleteCategory)
 		}
 	}
 

@@ -11,4 +11,5 @@ type CategoryDatabase interface {
 	CheckExistsById(id, name string) error
 	InsertCategory(category models.CategoryRequest) error
 	UpdateCategory(id string, updatedCategory models.CategoryRequest) error
+	DeleteCategory(id string) error
 }

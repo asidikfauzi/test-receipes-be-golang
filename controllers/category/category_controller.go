@@ -37,7 +37,7 @@ func (m *MasterCategory) GetAllCategories(c *gin.Context) {
 	}
 
 	response := models.ResponseWithPagination{
-		Code:       200,
+		Code:       http.StatusOK,
 		Message:    "Get All Categories Successfully",
 		Data:       data,
 		Pagination: responsePaginate,
@@ -55,7 +55,7 @@ func (m *MasterCategory) GetCategoryById(c *gin.Context) {
 	}
 
 	response := models.Response{
-		Code:    200,
+		Code:    http.StatusOK,
 		Message: "Get Category By ID Successfully",
 		Data:    data,
 	}
@@ -94,11 +94,11 @@ func (m *MasterCategory) CreateCategory(c *gin.Context) {
 	}
 
 	response := models.Response{
-		Code:    201,
+		Code:    http.StatusCreated,
 		Message: "Successfully Add Category!",
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusCreated, response)
 }
 
 func (m *MasterCategory) UpdateCategory(c *gin.Context) {
@@ -139,8 +139,32 @@ func (m *MasterCategory) UpdateCategory(c *gin.Context) {
 	}
 
 	response := models.Response{
-		Code:    200,
+		Code:    http.StatusOK,
 		Message: "Successfully Update Category!",
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (m *MasterCategory) DeleteCategory(c *gin.Context) {
+	var err error
+	id := c.Param("id")
+
+	_, err = m.CategoryDatabase.GetCategoryById(id)
+	if err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+
+	err = m.CategoryDatabase.DeleteCategory(id)
+	if err != nil {
+		utils.InternalServerError(c, err.Error())
+		return
+	}
+
+	response := models.Response{
+		Code:    http.StatusOK,
+		Message: "Successfully Delete Category!",
 	}
 
 	c.JSON(http.StatusOK, response)

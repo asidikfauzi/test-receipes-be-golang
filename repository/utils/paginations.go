@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -30,8 +29,6 @@ func Pagination(c *gin.Context, page, limit int) (int, int, int, error) {
 	}
 
 	offset := (page - 1) * limit
-
-	fmt.Println(offset)
 
 	return page, limit, offset, nil
 }

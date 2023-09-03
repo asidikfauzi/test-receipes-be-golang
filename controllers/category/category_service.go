@@ -10,6 +10,7 @@ type CategoryController interface {
 	GetCategoryById(c *gin.Context)
 	CreateCategory(c *gin.Context)
 	UpdateCategory(c *gin.Context)
+	DeleteCategory(c *gin.Context)
 }
 
 type MasterCategory struct {

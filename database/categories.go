@@ -138,3 +138,27 @@ func (d *CategoryDatabase) UpdateCategory(id string, updatedCategory models.Cate
 
 	return nil
 }
+
+func (d *CategoryDatabase) DeleteCategory(id string) error {
+	var (
+		categories models.Categories
+		err        error
+	)
+
+	uuidID, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+
+	if err = d.db.Where("category_id = ?", uuidID).First(&categories).Error; err != nil {
+		return err
+	}
+
+	now := time.Now()
+	categories.DeletedAt = &now
+	if err = d.db.Save(&categories).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

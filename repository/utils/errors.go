@@ -26,7 +26,7 @@ func FailOnError(err error, msg string) {
 }
 func BadRequest(c *gin.Context, message interface{}) {
 	c.JSON(http.StatusBadRequest, gin.H{
-		"code":    400,
+		"code":    http.StatusNotFound,
 		"message": message,
 		"status":  "Bad Request",
 	})
@@ -34,7 +34,7 @@ func BadRequest(c *gin.Context, message interface{}) {
 
 func InternalServerError(c *gin.Context, message interface{}) {
 	c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]interface{}{
-		"code":    500,
+		"code":    http.StatusInternalServerError,
 		"message": message,
 		"status":  "Internal Server Error",
 	})
