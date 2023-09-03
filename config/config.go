@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/asidikfauzi/test-recipes-be-golang/models"
+	"github.com/asidikfauzi/test-recipes-be-golang/config/migrations"
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/domain"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -77,11 +77,11 @@ func (c *Config) InitDB() (string, error) {
 }
 
 func (c *Config) InitMigrate() interface{} {
-	c.db.AutoMigrate(&models.LogActivity{})
-	c.db.AutoMigrate(&models.Categories{})
-	c.db.AutoMigrate(&models.Ingredients{})
-	c.db.AutoMigrate(&models.Recipes{})
-	c.db.AutoMigrate(&models.RecipesToIngredients{})
+	c.db.AutoMigrate(&migrations.LogActivity{})
+	c.db.AutoMigrate(&migrations.Categories{})
+	c.db.AutoMigrate(&migrations.Ingredients{})
+	c.db.AutoMigrate(&migrations.Recipes{})
+	c.db.AutoMigrate(&migrations.RecipesToIngredients{})
 
 	message := "SUCCESSFULLY ADD ALL TABLE MIGRATION"
 	fmt.Println(message)
