@@ -1,9 +1,12 @@
 package recipe
 
 import (
+	"errors"
+	"fmt"
 	"github.com/asidikfauzi/test-recipes-be-golang/models"
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"math"
 	"net/http"
 )
@@ -59,4 +62,45 @@ func (m *MasterRecipe) GetIngredientById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (m *MasterRecipe) CreateRecipe(c *gin.Context) {
+	var (
+		requestRecipe             models.RecipeRequest
+		requestRecipeToIngredient models.RecipesToIngredientsRequest
+		err                       error
+	)
+
+	fmt.Println("masukk")
+
+	if err = c.ShouldBindJSON(&requestRecipe); err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			out := make([]models.ErrorMessageEmpty, len(ve))
+			for i, fe := range ve {
+				out[i] = models.ErrorMessageEmpty{Field: fe.Field(), Message: utils.GetErrorMessageEmpty(fe)}
+			}
+			utils.BadRequest(c, out)
+		}
+		return
+	}
+
+	err = m.RecipeDatabase.CheckExists(requestRecipe.RecipeName)
+	if err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+
+	err = m.RecipeDatabase.InsertRecipe(requestRecipe, requestRecipeToIngredient)
+	if err != nil {
+		utils.InternalServerError(c, err.Error())
+		return
+	}
+
+	response := models.Response{
+		Code:    http.StatusCreated,
+		Message: "Successfully Add Recipe!",
+	}
+
+	c.JSON(http.StatusCreated, response)
 }

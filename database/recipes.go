@@ -6,6 +6,8 @@ import (
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/domain"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"log"
+	"time"
 )
 
 type RecipeDatabase struct {
@@ -123,7 +125,7 @@ func (d *RecipeDatabase) CheckExists(name string) error {
 		return err
 	}
 
-	return errors.New("Ingredient name already exists")
+	return errors.New("Recipe name already exists")
 }
 
 func (d *RecipeDatabase) CheckExistsById(id, name string) error {
@@ -137,4 +139,70 @@ func (d *RecipeDatabase) CheckExistsById(id, name string) error {
 	}
 
 	return errors.New("Recipe name already exists")
+}
+
+func (d *RecipeDatabase) InsertRecipe(recipe models.RecipeRequest, recipeToIngredients models.RecipesToIngredientsRequest) error {
+
+	tx := d.db.Begin()
+	if tx.Error != nil {
+		log.Fatal(tx.Error)
+	}
+
+	var (
+		recipes models.Recipes
+		err     error
+	)
+
+	recipeToIngredients.RecipeID = recipes.RecipeID
+
+	err = d.InsertRecipesToIngredients(recipes.RecipeID, recipe.Ingredients)
+	if err != nil {
+		tx.Rollback()
+		err = errors.New(err.Error())
+		return err
+	}
+
+	err = d.db.Table("recipes").Create(map[string]interface{}{
+		"recipe_name":                recipe.RecipeName,
+		"recipe_description":         recipe.RecipeDescription,
+		"recipe_image":               recipe.RecipeImage,
+		"recipe_preparation_time":    recipe.RecipePreparationTime,
+		"recipe_cooking_time":        recipe.RecipeCookingTime,
+		"recipe_portion_suggestions": recipe.RecipePortionSuggestions,
+		"recipe_rating":              recipe.RecipeRating,
+		"created_at":                 time.Now(),
+		"category_id":                recipe.CategoryId,
+	}).Error
+	if err != nil {
+		tx.Rollback()
+		err = errors.New(err.Error())
+		return err
+	}
+
+	if err = tx.Commit().Error; err != nil {
+		log.Fatal(err)
+	}
+
+	return nil
+}
+
+func (d *RecipeDatabase) InsertRecipesToIngredients(recipeId uuid.UUID, ingredients []uuid.UUID) error {
+	var (
+		recipesToIngredients models.RecipesToIngredients
+	)
+
+	for _, ingredientID := range ingredients {
+
+		recipesToIngredients.RecipeID = recipeId
+		recipesToIngredients.IngredientID = ingredientID
+		recipesToIngredients.CreatedAt = time.Now()
+
+		errCreate := d.db.Create(&recipesToIngredients).Error
+		if errCreate != nil {
+			errCreate = errors.New(errCreate.Error())
+			return errCreate
+		}
+	}
+
+	return nil
 }
