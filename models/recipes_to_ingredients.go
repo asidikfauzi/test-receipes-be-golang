@@ -22,10 +22,8 @@ type GetAllRecipesToIngredients struct {
 }
 
 type RecipesToIngredientsRequest struct {
-	RecToIngID     uuid.UUID   `json:"rec_to_ing_id"`
-	RecToIngAmount float64     `json:"rec_to_ing_amount"`
-	CreatedAt      time.Time   `json:"created_at"`
-	UpdatedAt      *time.Time  `json:"updated_at"`
-	RecipeID       uuid.UUID   `json:"recipe_id"`
-	IngredientID   []uuid.UUID `json:"ingredient_id"`
+	RecToIngAmount float64    `json:"rec_to_ing_amount"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      *time.Time `json:"updated_at"`
+	IngredientID   uuid.UUID  `json:"ingredient_id"`
 }

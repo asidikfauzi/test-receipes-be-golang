@@ -15,6 +15,8 @@ func GetErrorMessageEmpty(fe validator.FieldError) string {
 		return "Should be less than " + fe.Param()
 	case "gte":
 		return "Should be greater than " + fe.Param()
+	case "uuid":
+		return "Invalid UUID Format"
 	}
 	return "Unknown error"
 }

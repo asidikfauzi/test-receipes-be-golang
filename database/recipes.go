@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"github.com/asidikfauzi/test-recipes-be-golang/config/migrations"
 	"github.com/asidikfauzi/test-recipes-be-golang/models"
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/domain"
 	"github.com/google/uuid"
@@ -11,12 +12,16 @@ import (
 )
 
 type RecipeDatabase struct {
-	db *gorm.DB
+	db               *gorm.DB
+	categoryDatabase domain.CategoryDatabase
 }
 
-func NewRecipeDatabase(conn *gorm.DB) domain.RecipeDatabase {
+func NewRecipeDatabase(
+	conn *gorm.DB,
+	cd domain.CategoryDatabase) domain.RecipeDatabase {
 	return &RecipeDatabase{
-		db: conn,
+		db:               conn,
+		categoryDatabase: cd,
 	}
 }
 
@@ -141,38 +146,41 @@ func (d *RecipeDatabase) CheckExistsById(id, name string) error {
 	return errors.New("Recipe name already exists")
 }
 
-func (d *RecipeDatabase) InsertRecipe(recipe models.RecipeRequest, recipeToIngredients models.RecipesToIngredientsRequest) error {
+func (d *RecipeDatabase) InsertRecipe(recipe models.RecipeRequest, recipeToIngredients []models.RecipesToIngredientsRequest) error {
+	var err error
+
+	_, err = d.categoryDatabase.GetCategoryById(recipe.CategoryId.String())
+	if err != nil {
+		return err
+	}
 
 	tx := d.db.Begin()
 	if tx.Error != nil {
 		log.Fatal(tx.Error)
 	}
 
-	var (
-		recipes models.Recipes
-		err     error
-	)
+	resultRecipe := migrations.Recipes{
+		RecipeName:               recipe.RecipeName,
+		RecipeDescription:        recipe.RecipeDescription,
+		RecipeImage:              recipe.RecipeImage,
+		RecipePreparationTime:    recipe.RecipePreparationTime,
+		RecipeCookingTime:        recipe.RecipeCookingTime,
+		RecipePortionSuggestions: recipe.RecipePortionSuggestions,
+		RecipeRating:             recipe.RecipeRating,
+		CreatedAt:                time.Now(),
+		CategoryId:               recipe.CategoryId,
+	}
+	result := d.db.Create(&resultRecipe)
 
-	recipeToIngredients.RecipeID = recipes.RecipeID
-
-	err = d.InsertRecipesToIngredients(recipes.RecipeID, recipe.Ingredients)
-	if err != nil {
+	if result.Error != nil {
 		tx.Rollback()
-		err = errors.New(err.Error())
+		err = errors.New(result.Error.Error())
 		return err
 	}
 
-	err = d.db.Table("recipes").Create(map[string]interface{}{
-		"recipe_name":                recipe.RecipeName,
-		"recipe_description":         recipe.RecipeDescription,
-		"recipe_image":               recipe.RecipeImage,
-		"recipe_preparation_time":    recipe.RecipePreparationTime,
-		"recipe_cooking_time":        recipe.RecipeCookingTime,
-		"recipe_portion_suggestions": recipe.RecipePortionSuggestions,
-		"recipe_rating":              recipe.RecipeRating,
-		"created_at":                 time.Now(),
-		"category_id":                recipe.CategoryId,
-	}).Error
+	recipeID := resultRecipe.RecipeID
+
+	err = d.InsertRecipesToIngredients(recipeID, recipeToIngredients)
 	if err != nil {
 		tx.Rollback()
 		err = errors.New(err.Error())
@@ -186,15 +194,17 @@ func (d *RecipeDatabase) InsertRecipe(recipe models.RecipeRequest, recipeToIngre
 	return nil
 }
 
-func (d *RecipeDatabase) InsertRecipesToIngredients(recipeId uuid.UUID, ingredients []uuid.UUID) error {
+func (d *RecipeDatabase) InsertRecipesToIngredients(recipeId uuid.UUID, requestRecToInc []models.RecipesToIngredientsRequest) error {
 	var (
 		recipesToIngredients models.RecipesToIngredients
 	)
 
-	for _, ingredientID := range ingredients {
-
+	for _, ingredient := range requestRecToInc {
+		recipeToIngID := uuid.New()
+		recipesToIngredients.RecToIngID = recipeToIngID
 		recipesToIngredients.RecipeID = recipeId
-		recipesToIngredients.IngredientID = ingredientID
+		recipesToIngredients.IngredientID = ingredient.IngredientID
+		recipesToIngredients.RecToIngAmount = ingredient.RecToIngAmount
 		recipesToIngredients.CreatedAt = time.Now()
 
 		errCreate := d.db.Create(&recipesToIngredients).Error

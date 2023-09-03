@@ -65,9 +65,8 @@ func (m *MasterRecipe) GetIngredientById(c *gin.Context) {
 
 func (m *MasterRecipe) CreateRecipe(c *gin.Context) {
 	var (
-		requestRecipe             models.RecipeRequest
-		requestRecipeToIngredient models.RecipesToIngredientsRequest
-		err                       error
+		requestRecipe models.RecipeRequest
+		err           error
 	)
 
 	if err = c.ShouldBindJSON(&requestRecipe); err != nil {
@@ -76,6 +75,7 @@ func (m *MasterRecipe) CreateRecipe(c *gin.Context) {
 			out := make([]models.ErrorMessageEmpty, len(ve))
 			for i, fe := range ve {
 				out[i] = models.ErrorMessageEmpty{Field: fe.Field(), Message: utils.GetErrorMessageEmpty(fe)}
+
 			}
 			utils.BadRequest(c, out)
 		}
@@ -88,7 +88,7 @@ func (m *MasterRecipe) CreateRecipe(c *gin.Context) {
 		return
 	}
 
-	err = m.RecipeDatabase.InsertRecipe(requestRecipe, requestRecipeToIngredient)
+	err = m.RecipeDatabase.InsertRecipe(requestRecipe, requestRecipe.Ingredients)
 	if err != nil {
 		utils.InternalServerError(c, err.Error())
 		return
@@ -97,6 +97,7 @@ func (m *MasterRecipe) CreateRecipe(c *gin.Context) {
 	response := models.Response{
 		Code:    http.StatusCreated,
 		Message: "Successfully Add Recipe!",
+		Data:    requestRecipe,
 	}
 
 	c.JSON(http.StatusCreated, response)

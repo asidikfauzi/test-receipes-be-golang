@@ -7,5 +7,5 @@ type RecipeDatabase interface {
 	GetRecipeById(id string) (recipe models.GetRecipesById, err error)
 	CheckExists(name string) error
 	CheckExistsById(id, name string) error
-	InsertRecipe(recipe models.RecipeRequest, recipeToIngredients models.RecipesToIngredientsRequest) error
+	InsertRecipe(recipe models.RecipeRequest, recipeToIngredients []models.RecipesToIngredientsRequest) error
 }

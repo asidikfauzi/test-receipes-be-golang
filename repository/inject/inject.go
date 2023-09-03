@@ -26,7 +26,7 @@ func DependencyInjection(liq InjectData) domain.Config {
 
 	categoryDatabase := database.NewCategoryDatabase(db)
 	ingredientDatabase := database.NewIngredientDatabase(db)
-	recipeDatabase := database.NewRecipeDatabase(db)
+	recipeDatabase := database.NewRecipeDatabase(db, categoryDatabase)
 
 	dependencies := []*inject.Object{
 		{Value: categoryDatabase, Name: "category_database"},
