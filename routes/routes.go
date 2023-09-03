@@ -52,6 +52,7 @@ func (r *RoutesService) InitRoutes() {
 		recipes := endpoint.Group("/recipe")
 		{
 			recipes.GET("/", r.RecipeController.GetAllRecipes)
+			recipes.GET("/:id", r.RecipeController.GetIngredientById)
 		}
 	}
 

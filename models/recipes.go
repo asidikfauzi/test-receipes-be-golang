@@ -22,6 +22,16 @@ type Recipes struct {
 }
 
 type GetAllRecipes struct {
+	RecipeID     uuid.UUID `json:"recipe_id"`
+	RecipeName   string    `json:"recipe_name"`
+	RecipeImage  string    `json:"recipe_image"`
+	RecipeRating string    `json:"recipe_rating"`
+	CreatedAt    time.Time `json:"created_at"`
+	CategoryId   uuid.UUID `json:"category_id"`
+	CategoryName string    `json:"category_name"`
+}
+
+type GetRecipesById struct {
 	RecipeID                 uuid.UUID `json:"recipe_id"`
 	RecipeName               string    `json:"recipe_name"`
 	RecipeDescription        string    `json:"recipe_description"`

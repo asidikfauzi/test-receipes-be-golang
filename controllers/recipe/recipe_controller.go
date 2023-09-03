@@ -43,3 +43,20 @@ func (m *MasterRecipe) GetAllRecipes(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (m *MasterRecipe) GetIngredientById(c *gin.Context) {
+	id := c.Param("id")
+	data, err := m.RecipeDatabase.GetRecipeById(id)
+	if err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+
+	response := models.Response{
+		Code:    http.StatusOK,
+		Message: "Get Ingredient By ID Successfully",
+		Data:    data,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
