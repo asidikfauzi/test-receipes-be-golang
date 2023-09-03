@@ -14,9 +14,9 @@ type Recipes struct {
 	RecipeCookingTime        string     `gorm:"type:varchar(120);not null" json:"recipe_cooking_time"`
 	RecipePortionSuggestions string     `gorm:"type:varchar(120);not null" json:"recipe_portion_suggestions"`
 	RecipeRating             string     `gorm:"type:varchar(120);not null" json:"recipe_rating"`
-	CreatedAt                time.Time  `gorm:"default:null"`
-	UpdatedAt                *time.Time `gorm:"default:null"`
-	DeleteAt                 *time.Time `gorm:"default:null"`
+	CreatedAt                time.Time  `gorm:"default:null" json:"created_at"`
+	UpdatedAt                *time.Time `gorm:"default:null" json:"updated_at"`
+	DeletedAt                *time.Time `gorm:"default:null" json:"deleted_at"`
 	CategoryId               uuid.UUID  `gorm:"foreignKey;type:char(36);" json:"category_id"`
 	Category                 Categories `gorm:"foreignKey:CategoryID;references:category_id"`
 }
