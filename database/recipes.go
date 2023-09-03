@@ -102,6 +102,11 @@ func (d *RecipeDatabase) GetRecipeById(id string) (recipe models.GetRecipesById,
 		return recipe, err
 	}
 
+	recToIng, err := d.GetRecipeToIngredientByRecipeId(id)
+	if err != nil {
+		return recipe, err
+	}
+
 	response := models.GetRecipesById{
 		RecipeID:                 recipes.RecipeID,
 		RecipeName:               recipes.RecipeName,
@@ -114,6 +119,44 @@ func (d *RecipeDatabase) GetRecipeById(id string) (recipe models.GetRecipesById,
 		CategoryId:               recipes.CategoryId,
 		CategoryName:             recipes.CategoryName,
 		CreatedAt:                recipes.CreatedAt,
+		Ingredients:              recToIng,
+	}
+
+	return response, nil
+
+}
+
+func (d *RecipeDatabase) GetRecipeToIngredientByRecipeId(id string) (recipeToIngredient []models.GetAllRecipesToIngredientsWithName, err error) {
+	var recipesToIngredients []models.RecipesToIngredients
+
+	uuidID, err := uuid.Parse(id)
+	if err != nil {
+		return recipeToIngredient, err
+	}
+
+	if err = d.db.
+		Joins("INNER JOIN ingredients i ON recipes_to_ingredients.ingredient_id = i.ingredient_id").
+		Where("recipes_to_ingredients.recipe_id = ?", uuidID).
+		Where("recipes_to_ingredients.deleted_at IS NULL").
+		Select("recipes_to_ingredients.ingredient_id, " +
+			"recipes_to_ingredients.rec_to_ing_amount, " +
+			"recipes_to_ingredients.ingredient_id, " +
+			"i.ingredient_name").
+		Find(&recipesToIngredients).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = errors.New("Recipe not found!")
+		}
+		return recipeToIngredient, err
+	}
+
+	var response []models.GetAllRecipesToIngredientsWithName
+	for _, recToIng := range recipesToIngredients {
+
+		response = append(response, models.GetAllRecipesToIngredientsWithName{
+			RecToIngAmount: recToIng.RecToIngAmount,
+			IngredientID:   recToIng.IngredientID,
+			IngredientName: recToIng.IngredientName,
+		})
 	}
 
 	return response, nil
@@ -196,7 +239,7 @@ func (d *RecipeDatabase) InsertRecipe(recipe models.RecipeRequest, recipeToIngre
 
 func (d *RecipeDatabase) InsertRecipesToIngredients(recipeId uuid.UUID, requestRecToInc []models.RecipesToIngredientsRequest) error {
 	var (
-		recipesToIngredients models.RecipesToIngredients
+		recipesToIngredients migrations.RecipesToIngredients
 	)
 
 	for _, ingredient := range requestRecToInc {
