@@ -25,7 +25,7 @@ func (d *CategoryDatabase) GetCategories(offset, limit int) ([]models.GetAllCate
 		totalCount int64
 	)
 
-	if err := d.db.Order("category_name ASC").
+	if err := d.db.Where("deleted_at IS NULL").Order("category_name ASC").
 		Offset(offset).
 		Limit(limit).
 		Find(&categories).Error; err != nil {
@@ -56,7 +56,7 @@ func (d *CategoryDatabase) GetCategoryById(id string) (category models.GetAllCat
 		return category, err
 	}
 
-	if err := d.db.Where("category_id = ?", uuidID).First(&categories).Error; err != nil {
+	if err = d.db.Where("category_id = ?", uuidID).Where("deleted_at IS NULL").First(&categories).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = errors.New("Category not found!")
 		}
@@ -76,7 +76,20 @@ func (d *CategoryDatabase) GetCategoryById(id string) (category models.GetAllCat
 func (d *CategoryDatabase) CheckExists(name string) error {
 	var categories models.Categories
 
-	if err := d.db.Where("category_name = ?", name).First(&categories).Error; err != nil {
+	if err := d.db.Where("category_name = ?", name).Where("deleted_at IS NULL").First(&categories).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+
+	return errors.New("Category name already exists")
+}
+
+func (d *CategoryDatabase) CheckExistsById(id, name string) error {
+	var categories models.Categories
+
+	if err := d.db.Where("category_name = ?", name).Where("category_id != ? ", id).Where("deleted_at IS NULL").First(&categories).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
 		}
@@ -95,6 +108,31 @@ func (d *CategoryDatabase) InsertCategory(category models.CategoryRequest) error
 	err := d.db.Create(&categories).Error
 	if err != nil {
 		err = errors.New(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (d *CategoryDatabase) UpdateCategory(id string, updatedCategory models.CategoryRequest) error {
+	var (
+		categories models.Categories
+		err        error
+	)
+
+	uuidID, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+
+	if err = d.db.Where("category_id = ?", uuidID).Where("deleted_at IS NULL").First(&categories).Error; err != nil {
+		return err
+	}
+
+	now := time.Now()
+	categories.CategoryName = updatedCategory.CategoryName
+	categories.UpdatedAt = &now
+	if err = d.db.Save(&categories).Error; err != nil {
 		return err
 	}
 

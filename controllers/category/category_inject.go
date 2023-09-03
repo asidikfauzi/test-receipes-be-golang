@@ -9,6 +9,7 @@ type CategoryController interface {
 	GetAllCategories(c *gin.Context)
 	GetCategoryById(c *gin.Context)
 	CreateCategory(c *gin.Context)
+	UpdateCategory(c *gin.Context)
 }
 
 type MasterCategory struct {

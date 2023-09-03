@@ -100,3 +100,48 @@ func (m *MasterCategory) CreateCategory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (m *MasterCategory) UpdateCategory(c *gin.Context) {
+	var (
+		requestCategory models.CategoryRequest
+		err             error
+	)
+
+	id := c.Param("id")
+	_, err = m.CategoryDatabase.GetCategoryById(id)
+	if err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+
+	if err = c.ShouldBindJSON(&requestCategory); err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			out := make([]models.ErrorMessageEmpty, len(ve))
+			for i, fe := range ve {
+				out[i] = models.ErrorMessageEmpty{Field: fe.Field(), Message: utils.GetErrorMessageEmpty(fe)}
+			}
+			utils.BadRequest(c, out)
+		}
+		return
+	}
+
+	err = m.CategoryDatabase.CheckExistsById(id, requestCategory.CategoryName)
+	if err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+
+	err = m.CategoryDatabase.UpdateCategory(id, requestCategory)
+	if err != nil {
+		utils.InternalServerError(c, err.Error())
+		return
+	}
+
+	response := models.Response{
+		Code:    200,
+		Message: "Successfully Update Category!",
+	}
+
+	c.JSON(http.StatusOK, response)
+}
