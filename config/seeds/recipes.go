@@ -2,7 +2,7 @@ package seeds
 
 import (
 	"fmt"
-	"github.com/asidikfauzi/test-recipes-be-golang/models"
+	"github.com/asidikfauzi/test-recipes-be-golang/config/migrations"
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/domain"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -21,19 +21,19 @@ func NewRecipeSeeder(conn *gorm.DB) domain.RecipeMigration {
 
 func (r *RecipeSeed) UpRecipeSeeder() {
 
-	var mainFoodCategory models.Categories
+	var mainFoodCategory migrations.Categories
 	if err := r.db.Where("category_name = ?", "The Main Food").First(&mainFoodCategory).Error; err != nil {
 		fmt.Println("Category 'The Main Food' not found:", err)
 		return
 	}
 
-	var drinkCategory models.Categories
+	var drinkCategory migrations.Categories
 	if err := r.db.Where("category_name = ?", "Drink").First(&drinkCategory).Error; err != nil {
 		fmt.Println("Category 'Drink' not found:", err)
 		return
 	}
 
-	var dessertCategory models.Categories
+	var dessertCategory migrations.Categories
 	if err := r.db.Where("category_name = ?", "Dessert").First(&dessertCategory).Error; err != nil {
 		fmt.Println("Category 'Dessert' not found:", err)
 		return
@@ -95,13 +95,13 @@ func (r *RecipeSeed) UpRecipeSeeder() {
 	}
 
 	for _, data := range recipeData {
-		var existingRecipe models.Recipes
+		var existingRecipe migrations.Recipes
 		if err := r.db.Where("recipe_name = ?", data.Name).First(&existingRecipe).Error; err == nil {
 			continue
 		}
 
 		recipeID, _ := uuid.NewRandom()
-		newRecipe := models.Recipes{
+		newRecipe := migrations.Recipes{
 			RecipeID:                 recipeID,
 			RecipeName:               data.Name,
 			RecipeDescription:        data.Description,

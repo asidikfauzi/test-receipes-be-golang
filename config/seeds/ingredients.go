@@ -1,7 +1,7 @@
 package seeds
 
 import (
-	"github.com/asidikfauzi/test-recipes-be-golang/models"
+	"github.com/asidikfauzi/test-recipes-be-golang/config/migrations"
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/domain"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -31,13 +31,13 @@ func (g *IngredientSeed) UpIngredientSeeder() {
 	}
 
 	for _, ingredientName := range ingredientNames {
-		var existingIngredient models.Ingredients
+		var existingIngredient migrations.Ingredients
 		if err := g.db.Where("ingredient_name = ?", ingredientName).First(&existingIngredient).Error; err == nil {
 			continue
 		}
 
 		ingredientID, _ := uuid.NewRandom()
-		newIngredient := models.Ingredients{
+		newIngredient := migrations.Ingredients{
 			IngredientID:   ingredientID,
 			IngredientName: ingredientName,
 			CreatedAt:      time.Now(),
