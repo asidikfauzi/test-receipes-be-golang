@@ -9,6 +9,7 @@ type RecipeController interface {
 	GetAllRecipes(c *gin.Context)
 	GetIngredientById(c *gin.Context)
 	CreateRecipe(c *gin.Context)
+	UpdateRecipe(c *gin.Context)
 }
 
 type MasterRecipe struct {

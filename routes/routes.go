@@ -54,6 +54,7 @@ func (r *RoutesService) InitRoutes() {
 			recipes.GET("/", r.RecipeController.GetAllRecipes)
 			recipes.GET("/:id", r.RecipeController.GetIngredientById)
 			recipes.POST("/", r.RecipeController.CreateRecipe)
+			recipes.PUT("/:id", r.RecipeController.UpdateRecipe)
 		}
 	}
 

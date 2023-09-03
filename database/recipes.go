@@ -237,6 +237,64 @@ func (d *RecipeDatabase) InsertRecipe(recipe models.RecipeRequest, recipeToIngre
 	return nil
 }
 
+func (d *RecipeDatabase) UpdateRecipe(id string, recipe models.RecipeRequest, recipeToIngredients []models.RecipesToIngredientsRequest) error {
+	var (
+		recipes migrations.Recipes
+		err     error
+	)
+
+	uuidID, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+
+	if err = d.db.Where("recipe_id = ?", uuidID).Where("deleted_at IS NULL").First(&recipes).Error; err != nil {
+		return err
+	}
+
+	_, err = d.categoryDatabase.GetCategoryById(recipe.CategoryId.String())
+	if err != nil {
+		return err
+	}
+
+	tx := d.db.Begin()
+	if tx.Error != nil {
+		log.Fatal(tx.Error)
+	}
+
+	now := time.Now()
+	recipes.RecipeName = recipe.RecipeName
+	recipes.RecipeDescription = recipe.RecipeDescription
+	recipes.RecipeImage = recipe.RecipeImage
+	recipes.RecipePreparationTime = recipe.RecipePreparationTime
+	recipes.RecipeCookingTime = recipe.RecipeCookingTime
+	recipes.RecipePortionSuggestions = recipe.RecipePortionSuggestions
+	recipes.RecipeRating = recipe.RecipeRating
+	recipes.UpdatedAt = &now
+	recipes.CategoryId = recipe.CategoryId
+
+	result := d.db.Save(&recipes)
+
+	if result.Error != nil {
+		tx.Rollback()
+		err = errors.New(result.Error.Error())
+		return err
+	}
+
+	err = d.UpdateRecipesToIngredients(uuidID, recipeToIngredients)
+	if err != nil {
+		tx.Rollback()
+		err = errors.New(err.Error())
+		return err
+	}
+
+	if err = tx.Commit().Error; err != nil {
+		log.Fatal(err)
+	}
+
+	return nil
+}
+
 func (d *RecipeDatabase) InsertRecipesToIngredients(recipeId uuid.UUID, requestRecToInc []models.RecipesToIngredientsRequest) error {
 	var (
 		recipesToIngredients migrations.RecipesToIngredients
@@ -251,6 +309,32 @@ func (d *RecipeDatabase) InsertRecipesToIngredients(recipeId uuid.UUID, requestR
 		recipesToIngredients.CreatedAt = time.Now()
 
 		errCreate := d.db.Create(&recipesToIngredients).Error
+		if errCreate != nil {
+			errCreate = errors.New(errCreate.Error())
+			return errCreate
+		}
+	}
+
+	return nil
+}
+
+func (d *RecipeDatabase) UpdateRecipesToIngredients(recipeId uuid.UUID, requestRecToInc []models.RecipesToIngredientsRequest) error {
+	var (
+		recipesToIngredients migrations.RecipesToIngredients
+	)
+
+	if err := d.db.Where("recipe_id = ?", recipeId).Where("deleted_at IS NULL").First(&recipesToIngredients).Error; err != nil {
+		return err
+	}
+
+	now := time.Now()
+	for _, ingredient := range requestRecToInc {
+		recipesToIngredients.RecipeID = recipeId
+		recipesToIngredients.IngredientID = ingredient.IngredientID
+		recipesToIngredients.RecToIngAmount = ingredient.RecToIngAmount
+		recipesToIngredients.UpdatedAt = &now
+
+		errCreate := d.db.Save(&recipesToIngredients).Error
 		if errCreate != nil {
 			errCreate = errors.New(errCreate.Error())
 			return errCreate
