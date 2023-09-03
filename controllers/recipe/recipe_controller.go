@@ -2,7 +2,6 @@ package recipe
 
 import (
 	"errors"
-	"fmt"
 	"github.com/asidikfauzi/test-recipes-be-golang/models"
 	"github.com/asidikfauzi/test-recipes-be-golang/repository/utils"
 	"github.com/gin-gonic/gin"
@@ -70,8 +69,6 @@ func (m *MasterRecipe) CreateRecipe(c *gin.Context) {
 		requestRecipeToIngredient models.RecipesToIngredientsRequest
 		err                       error
 	)
-
-	fmt.Println("masukk")
 
 	if err = c.ShouldBindJSON(&requestRecipe); err != nil {
 		var ve validator.ValidationErrors
